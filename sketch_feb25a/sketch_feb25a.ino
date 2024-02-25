@@ -1,14 +1,14 @@
 #include <SPI.h>
 #include <TFT_eSPI.h>  // Hardware-specific library
 
-#include <LittleFileSystem.h>
-#define FileSys LittleFileSystem
-#include <PNGdec.h>
-#define MAX_IMAGE_WIDTH 240
+// #include <LittleFileSystem.h>
+// #define FileSys LittleFileSystem
+// #include <PNGdec.h>
+// #define MAX_IMAGE_WIDTH 240
 
 TFT_eSPI tft = TFT_eSPI();  // Invoke custom library
-PNG bhxLogoPng;
-PNG rickyPng;
+// PNG bhxLogoPng;
+// PNG rickyPng;
 
 enum State {
   MainMenu,
@@ -17,85 +17,85 @@ enum State {
   TetGameOver
 };
 
-void * pngOpen(const char *filename, int32_t *size) {
-  Serial.printf("Attempting to open %s\n", filename);
-  pngfile = FileSys.open(filename, "r");
-  *size = pngfile.size();
-  return &pngfile;
-}
+// void * pngOpen(const char *filename, int32_t *size) {
+//   Serial.print("Attempting to open %s\n", filename);
+//   pngfile = FileSys.open(filename, "r");
+//   *size = pngfile.size();
+//   return &pngfile;
+// }
 
-void pngClose(void *handle) {
-  File pngfile = *((File*)handle);
-  if (pngfile) pngfile.close();
-}
+// void pngClose(void *handle) {
+//   File pngfile = *((File*)handle);
+//   if (pngfile) pngfile.close();
+// }
 
-int32_t pngRead(PNGFILE *page, uint8_t *buffer, int32_t length) {
-  if (!pngfile) return 0;
-  page = page; // Avoid warning
-  return pngfile.read(buffer, length);
-}
+// int32_t pngRead(PNGFILE *page, uint8_t *buffer, int32_t length) {
+//   if (!pngfile) return 0;
+//   page = page; // Avoid warning
+//   return pngfile.read(buffer, length);
+// }
 
-int32_t pngSeek(PNGFILE *page, int32_t position) {
-  if (!pngfile) return 0;
-  page = page; // Avoid warning
-  return pngfile.seek(position);
-}
+// int32_t pngSeek(PNGFILE *page, int32_t position) {
+//   if (!pngfile) return 0;
+//   page = page; // Avoid warning
+//   return pngfile.seek(position);
+// }
 
-#define BHXLOGO_X 0
-#define BHXLOGO_Y 0
-#define RICKY_X 0
-#define RICKY_Y 0
+// #define BHXLOGO_X 0
+// #define BHXLOGO_Y 0
+// #define RICKY_X 0
+// #define RICKY_Y 0
 
-void bhxLogoDraw(PNGDRAW *pDraw) {
-  uint16_t lineBuffer[MAX_IMAGE_WIDTH];
-  bhxLogoPng.getLineAsRGB565(pDraw, lineBuffer, PNG_RGB565_BIG_ENDIAN, 0xffffffff);
-  tft.pushImage(BHXLOGO_X, BHXLOGO_Y + pDraw->y, pDraw->iWidth, 1, lineBuffer);
-}
+// void bhxLogoDraw(PNGDRAW *pDraw) {
+//   uint16_t lineBuffer[MAX_IMAGE_WIDTH];
+//   bhxLogoPng.getLineAsRGB565(pDraw, lineBuffer, PNG_RGB565_BIG_ENDIAN, 0xffffffff);
+//   tft.pushImage(BHXLOGO_X, BHXLOGO_Y + pDraw->y, pDraw->iWidth, 1, lineBuffer);
+// }
 
-void rickyDraw(PNGDRAW *pDraw) {
-  uint16_t lineBuffer[MAX_IMAGE_WIDTH];
-  rickyPng.getLineAsRGB565(pDraw, lineBuffer, PNG_RGB565_BIG_ENDIAN, 0xffffffff);
-  tft.pushImage(RICKY_X, RICKY_Y + pDraw->y, pDraw->iWidth, 1, lineBuffer);
-}
+// void rickyDraw(PNGDRAW *pDraw) {
+//   uint16_t lineBuffer[MAX_IMAGE_WIDTH];
+//   rickyPng.getLineAsRGB565(pDraw, lineBuffer, PNG_RGB565_BIG_ENDIAN, 0xffffffff);
+//   tft.pushImage(RICKY_X, RICKY_Y + pDraw->y, pDraw->iWidth, 1, lineBuffer);
+// }
 
-void goToMainMenu() {
-  File bhxLogo = LittleFS.open("/bhxlogo.png");
-  File ricky = LittleFS.open("/ricky.png");
+// void goToMainMenu() {
+//   File bhxLogo = LittleFS.open("/bhxlogo.png");
+//   File ricky = LittleFS.open("/ricky.png");
 
-  int16_t bhxLogoRC = bhxLogoPng.open(file.name().c_str(), pngOpen, pngClose, pngRead, pngSeek, bhxLogoDraw);
-  int16_t rickyRC = rickyPng.open(file.name().c_str(), pngOpen, pngClose, pngRead, pngSeek, rickyDraw);
+//   int16_t bhxLogoRC = bhxLogoPng.open(file.name().c_str(), pngOpen, pngClose, pngRead, pngSeek, bhxLogoDraw);
+//   int16_t rickyRC = rickyPng.open(file.name().c_str(), pngOpen, pngClose, pngRead, pngSeek, rickyDraw);
 
-  tft.fillScreen(TFT_BLACK);
+//   tft.fillScreen(TFT_BLACK);
 
-  delay(1000);
+//   delay(1000);
 
-  if (bhxLogoRC == PNG_SUCCESS && rickyRC == PNG_SUCCESS) {
-    tft.startWrite();
+//   if (bhxLogoRC == PNG_SUCCESS && rickyRC == PNG_SUCCESS) {
+//     tft.startWrite();
 
-    if (bhxLogoPng.getWidth() > MAX_IMAGE_WIDTH) {
-      Serial.println("bhx was too big");
-    } else {
-      bhxLogoRC = bhxLogoPng.decode(NULL, 0);
-      bhxLogoPng.close();
-    }
-    if (rickyPng.getWidth() > MAX_IMAGE_WIDTH) {
-      Serial.println("ricky was too big");
-    } else {
-      rickyRC = rickyPng.decode(NULL, 0);
-      rickyPng.close();
-    }
+//     if (bhxLogoPng.getWidth() > MAX_IMAGE_WIDTH) {
+//       Serial.println("bhx was too big");
+//     } else {
+//       bhxLogoRC = bhxLogoPng.decode(NULL, 0);
+//       bhxLogoPng.close();
+//     }
+//     if (rickyPng.getWidth() > MAX_IMAGE_WIDTH) {
+//       Serial.println("ricky was too big");
+//     } else {
+//       rickyRC = rickyPng.decode(NULL, 0);
+//       rickyPng.close();
+//     }
 
-    tft.endWrite();
-  }
+//     tft.endWrite();
+//   }
 
-  delay(5000);
+//   delay(5000);
 
-  tft.fillScreen(TFT_BLACK);
+//   tft.fillScreen(TFT_BLACK);
 
-  delay(1000);
+//   delay(1000);
 
-  goToTetMenu();
-}
+//   goToTetMenu();
+// }
 
 uint16_t colors[] = {TFT_DARKGREY, TFT_RED, TFT_ORANGE, TFT_YELLOW, TFT_GREEN, TFT_BLUE, TFT_CYAN, TFT_MAGENTA};
 
@@ -117,19 +117,19 @@ void setup() {
   tft.init();
   tft.setRotation(0);
   tft.fillScreen(TFT_DARKGREY);
-  state = MainMenu;
+  state = TetMenu;
 
-  if (!FileSys.begin()) {
-    Serial.println("LittleFS initialisation failed!");
-    while (1) yield();
-  }
+  // if (!FileSys.begin()) {
+  //   Serial.println("LittleFS initialisation failed!");
+  //   while (1) yield();
+  // }
 
   for (int i = 2; i < 8; i++) {
     pinMode(i, INPUT_PULLDOWN);
     buttons[i - 2] = false;
   }
 
-  goToMainMenu();
+  goToTetMenu();
 }
 
 int f = 0;
@@ -178,6 +178,10 @@ void loop() {
 
       if(buttons[0]){
         tryRotate();
+      }
+
+      if (buttons[1]) {
+        while(tryFall());
       }
 
       //Draw
@@ -232,7 +236,7 @@ bool tryMoveSide(bool right){
 bool tryRotate(){
   calcBlockCoords(fallingBlock, rot + 1);
   for(int i = 0; i < 4; i++){
-    if((pos[1] + fallingBlockCoords[i][0) >= 10 || (pos[0] + fallingBlockCoords[i][1]) > 20 || (pos[1] + fallingBlockCoords[i][0]) < 0 || blocks[pos[0] + fallingBlockCoords[i][1]][pos[1] + fallingBlockCoords[i][0]] != 0){
+    if((pos[1] + fallingBlockCoords[i][0]) >= 10 || (pos[0] + fallingBlockCoords[i][1]) > 20 || (pos[1] + fallingBlockCoords[i][0]) < 0 || blocks[pos[0] + fallingBlockCoords[i][1]][pos[1] + fallingBlockCoords[i][0]] != 0){
       calcBlockCoords(fallingBlock, rot);
       return false;
     }
