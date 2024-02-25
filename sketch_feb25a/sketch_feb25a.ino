@@ -107,6 +107,7 @@ int blocks[20][10];
 int fallingBlock = 0;
 int pos[2];
 int fallingBlockCoords[4][2];
+int rot;
 
 State state;
 
@@ -146,15 +147,19 @@ void loop() {
       break;
     case 1: //TetMenu
       //Update
-      if(buttons[2]) state = TetGame;
+      if(buttons[2]){
+        state = TetGame;
+        goToTetGame();
+      }
       break;
     case 2: //TetGame
       //Update
       if(fallingBlock == 0){
         fallingBlock = (rand()%7)+1;
-        calcBlockCoords(fallingBlock);
+        calcBlockCoords(fallingBlock, rot);
         pos[0] = 0;
         pos[1] = 4;
+        rot = 0;
       }
       if(f % 4){ //fall
         if(!tryFall()){//lands
@@ -166,8 +171,13 @@ void loop() {
         }
       }
 
-      if(buttons[4] || buttons[6]){
-        tryMoveSide(buttons[4]);
+
+      if(buttons[3] || buttons[5]){
+        tryMoveSide(buttons[3]);
+      }
+
+      if(buttons[0]){
+        tryRotate();
       }
 
       //Draw
@@ -219,6 +229,10 @@ bool tryMoveSide(bool right){
   return true;
 }
 
+bool tryRotate(){
+
+}
+
 void goToTetMenu() {
 
   tft.fillScreen(TFT_DARKGREY);
@@ -244,60 +258,229 @@ void goToTetGame() {
       tft.fillRect(80 + c * 16, 80 + r * 16, 16, 16, colors[rand()%8]);
     }
   }
-
 }
 
-void calcBlockCoords(int block){// 0, 1 = I, 2 = L, 3 = J, 4 = Z, 5 = S, 6 = o, 7 = T
+void calcBlockCoords(int block, int rot){// 0, 1 = I, 2 = L, 3 = J, 4 = Z, 5 = S, 6 = o, 7 = T
   switch(block){
     case 1: // |
-      fallingBlockCoords[0][0] = 0;
-      fallingBlockCoords[0][1] = 0;
-      fallingBlockCoords[1][0] = 0;
-      fallingBlockCoords[1][1] = 1;
-      fallingBlockCoords[2][0] = 0;
-      fallingBlockCoords[2][1] = 2;
-      fallingBlockCoords[3][0] = 0;
-      fallingBlockCoords[3][1] = 3;
+      switch(rot){
+        case 0:
+          fallingBlockCoords[0][0] = 0;
+          fallingBlockCoords[0][1] = 0;
+          fallingBlockCoords[1][0] = -1;
+          fallingBlockCoords[1][1] = 0;
+          fallingBlockCoords[2][0] = 1;
+          fallingBlockCoords[2][1] = 0;
+          fallingBlockCoords[3][0] = 2;
+          fallingBlockCoords[3][1] = 0;
+          break;
+        case 1:
+          fallingBlockCoords[0][0] = 1;
+          fallingBlockCoords[0][1] = -2;
+          fallingBlockCoords[1][0] = 1;
+          fallingBlockCoords[1][1] = -1;
+          fallingBlockCoords[2][0] = 1;
+          fallingBlockCoords[2][1] = 1;
+          fallingBlockCoords[3][0] = 1;
+          fallingBlockCoords[3][1] = 2;
+          break;
+        case 2:
+          fallingBlockCoords[0][0] = 0;
+          fallingBlockCoords[0][1] = 1;
+          fallingBlockCoords[1][0] = -1;
+          fallingBlockCoords[1][1] = 1;
+          fallingBlockCoords[2][0] = 1;
+          fallingBlockCoords[2][1] = 1;
+          fallingBlockCoords[3][0] = 2;
+          fallingBlockCoords[3][1] = 1;
+          break;
+        case 3:
+          fallingBlockCoords[0][0] = 0;
+          fallingBlockCoords[0][1] = -2;
+          fallingBlockCoords[1][0] = 0;
+          fallingBlockCoords[1][1] = -1;
+          fallingBlockCoords[2][0] = 0;
+          fallingBlockCoords[2][1] = 1;
+          fallingBlockCoords[3][0] = 0;
+          fallingBlockCoords[3][1] = 2;
+          break;
+      }
       break;
     case 2: // L
-      fallingBlockCoords[0][0] = 0;
-      fallingBlockCoords[0][1] = 0;
-      fallingBlockCoords[1][0] = 0;
-      fallingBlockCoords[1][1] = 1;
-      fallingBlockCoords[2][0] = 0;
-      fallingBlockCoords[2][1] = 2;
-      fallingBlockCoords[3][0] = 1;
-      fallingBlockCoords[3][1] = 2;
+      switch(rot){
+        case 0:
+          fallingBlockCoords[0][0] = -1;
+          fallingBlockCoords[0][1] = -1;
+          fallingBlockCoords[1][0] = -1;
+          fallingBlockCoords[1][1] = 0;
+          fallingBlockCoords[2][0] = 0;
+          fallingBlockCoords[2][1] = 0;
+          fallingBlockCoords[3][0] = 1;
+          fallingBlockCoords[3][1] = 0;
+          break;
+        case 1:
+          fallingBlockCoords[0][0] = 0;
+          fallingBlockCoords[0][1] = -1;
+          fallingBlockCoords[1][0] = 1;
+          fallingBlockCoords[1][1] = -1;
+          fallingBlockCoords[2][0] = 0;
+          fallingBlockCoords[2][1] = 0;
+          fallingBlockCoords[3][0] = 0;
+          fallingBlockCoords[3][1] = 1;
+          break;
+        case 2:
+          fallingBlockCoords[0][0] = 0;
+          fallingBlockCoords[0][1] = 0;
+          fallingBlockCoords[1][0] = -1;
+          fallingBlockCoords[1][1] = 0;
+          fallingBlockCoords[2][0] = 1;
+          fallingBlockCoords[2][1] = 0;
+          fallingBlockCoords[3][0] = 1;
+          fallingBlockCoords[3][1] = 1;
+          break;
+        case 3:
+          fallingBlockCoords[0][0] = 0;
+          fallingBlockCoords[0][1] = 0;
+          fallingBlockCoords[1][0] = 0;
+          fallingBlockCoords[1][1] = -1;
+          fallingBlockCoords[2][0] = 0;
+          fallingBlockCoords[2][1] = 1;
+          fallingBlockCoords[3][0] = -1;
+          fallingBlockCoords[3][1] = 1;
+          break;
+      }
       break;
     case 3: // J
-      fallingBlockCoords[0][0] = 0;
-      fallingBlockCoords[0][1] = 0;
-      fallingBlockCoords[1][0] = 0;
-      fallingBlockCoords[1][1] = 1;
-      fallingBlockCoords[2][0] = 0;
-      fallingBlockCoords[2][1] = 2;
-      fallingBlockCoords[3][0] = -1;
-      fallingBlockCoords[3][1] = 2;
+      switch(rot){
+        case 0:
+          fallingBlockCoords[0][0] = 1;
+          fallingBlockCoords[0][1] = -1;
+          fallingBlockCoords[1][0] = -1;
+          fallingBlockCoords[1][1] = 0;
+          fallingBlockCoords[2][0] = 0;
+          fallingBlockCoords[2][1] = 0;
+          fallingBlockCoords[3][0] = 1;
+          fallingBlockCoords[3][1] = 0;
+          break;
+        case 1:
+          fallingBlockCoords[0][0] = 0;
+          fallingBlockCoords[0][1] = -1;
+          fallingBlockCoords[1][0] = 1;
+          fallingBlockCoords[1][1] = 1;
+          fallingBlockCoords[2][0] = 0;
+          fallingBlockCoords[2][1] = 0;
+          fallingBlockCoords[3][0] = 0;
+          fallingBlockCoords[3][1] = 1;
+          break;
+        case 2:
+          fallingBlockCoords[0][0] = 0;
+          fallingBlockCoords[0][1] = 0;
+          fallingBlockCoords[1][0] = -1;
+          fallingBlockCoords[1][1] = 0;
+          fallingBlockCoords[2][0] = 1;
+          fallingBlockCoords[2][1] = 0;
+          fallingBlockCoords[3][0] = -1;
+          fallingBlockCoords[3][1] = 1;
+          break;
+        case 3:
+          fallingBlockCoords[0][0] = 0;
+          fallingBlockCoords[0][1] = 0;
+          fallingBlockCoords[1][0] = 0;
+          fallingBlockCoords[1][1] = -1;
+          fallingBlockCoords[2][0] = 0;
+          fallingBlockCoords[2][1] = 1;
+          fallingBlockCoords[3][0] = -1;
+          fallingBlockCoords[3][1] = -1;
+          break;
+      }
       break;
     case 4: // Z
-      fallingBlockCoords[0][0] = 0;
-      fallingBlockCoords[0][1] = 0;
-      fallingBlockCoords[1][0] = 1;
-      fallingBlockCoords[1][1] = 0;
-      fallingBlockCoords[2][0] = 1;
-      fallingBlockCoords[2][1] = 1;
-      fallingBlockCoords[3][0] = 2;
-      fallingBlockCoords[3][1] = 1;
+      switch(rot){
+        case 0:
+          fallingBlockCoords[0][0] = -1;
+          fallingBlockCoords[0][1] = -1;
+          fallingBlockCoords[1][0] = 0;
+          fallingBlockCoords[1][1] = -1;
+          fallingBlockCoords[2][0] = 0;
+          fallingBlockCoords[2][1] = 0;
+          fallingBlockCoords[3][0] = 1;
+          fallingBlockCoords[3][1] = 0;
+          break;
+        case 1:
+          fallingBlockCoords[0][0] = 0;
+          fallingBlockCoords[0][1] = -1;
+          fallingBlockCoords[1][0] = 0;
+          fallingBlockCoords[1][1] = 0;
+          fallingBlockCoords[2][0] = 1;
+          fallingBlockCoords[2][1] = 0;
+          fallingBlockCoords[3][0] = 1;
+          fallingBlockCoords[3][1] = 1;
+          break;
+        case 2:
+          fallingBlockCoords[0][0] = -1;
+          fallingBlockCoords[0][1] = 1;
+          fallingBlockCoords[1][0] = 0;
+          fallingBlockCoords[1][1] = 1;
+          fallingBlockCoords[2][0] = 0;
+          fallingBlockCoords[2][1] = 0;
+          fallingBlockCoords[3][0] = 1;
+          fallingBlockCoords[3][1] = 0;
+          break;
+        case 3:
+          fallingBlockCoords[0][0] = -1;
+          fallingBlockCoords[0][1] = -1;
+          fallingBlockCoords[1][0] = -1;
+          fallingBlockCoords[1][1] = 0;
+          fallingBlockCoords[2][0] = 0;
+          fallingBlockCoords[2][1] = 0;
+          fallingBlockCoords[3][0] = 0;
+          fallingBlockCoords[3][1] = 1;
+          break;
+      }
       break;
     case 5: // S
-      fallingBlockCoords[0][0] = 0;
-      fallingBlockCoords[0][1] = 1;
-      fallingBlockCoords[1][0] = 1;
-      fallingBlockCoords[1][1] = 1;
-      fallingBlockCoords[2][0] = 1;
-      fallingBlockCoords[2][1] = 0;
-      fallingBlockCoords[3][0] = 2;
-      fallingBlockCoords[3][1] = 0;
+      switch(rot){
+        case 0:
+          fallingBlockCoords[0][0] = -1;
+          fallingBlockCoords[0][1] = -1;
+          fallingBlockCoords[1][0] = 0;
+          fallingBlockCoords[1][1] = -1;
+          fallingBlockCoords[2][0] = 0;
+          fallingBlockCoords[2][1] = 0;
+          fallingBlockCoords[3][0] = 1;
+          fallingBlockCoords[3][1] = 0;
+          break;
+        case 1:
+          fallingBlockCoords[0][0] = 1;
+          fallingBlockCoords[0][1] = -1;
+          fallingBlockCoords[1][0] = 1;
+          fallingBlockCoords[1][1] = 0;
+          fallingBlockCoords[2][0] = 0;
+          fallingBlockCoords[2][1] = 0;
+          fallingBlockCoords[3][0] = 0;
+          fallingBlockCoords[3][1] = 1;
+          break;
+        case 2:
+          fallingBlockCoords[0][0] = -1;
+          fallingBlockCoords[0][1] = 0;
+          fallingBlockCoords[1][0] = 0;
+          fallingBlockCoords[1][1] = 0;
+          fallingBlockCoords[2][0] = 0;
+          fallingBlockCoords[2][1] = 1;
+          fallingBlockCoords[3][0] = 1;
+          fallingBlockCoords[3][1] = 1;
+          break;
+        case 3:
+          fallingBlockCoords[0][0] = 0;
+          fallingBlockCoords[0][1] = -1;
+          fallingBlockCoords[1][0] = 0;
+          fallingBlockCoords[1][1] = 0;
+          fallingBlockCoords[2][0] = 1;
+          fallingBlockCoords[2][1] = 0;
+          fallingBlockCoords[3][0] = 1;
+          fallingBlockCoords[3][1] = -1;
+          break;
+      }
       break;
     case 6: // o
       fallingBlockCoords[0][0] = 0;
@@ -310,14 +493,48 @@ void calcBlockCoords(int block){// 0, 1 = I, 2 = L, 3 = J, 4 = Z, 5 = S, 6 = o, 
       fallingBlockCoords[3][1] = 0;
       break;
     case 7: // T
-      fallingBlockCoords[0][0] = 0;
-      fallingBlockCoords[0][1] = 0;
-      fallingBlockCoords[1][0] = 0;
-      fallingBlockCoords[1][1] = 1;
-      fallingBlockCoords[2][0] = -1;
-      fallingBlockCoords[2][1] = 0;
-      fallingBlockCoords[3][0] = 1;
-      fallingBlockCoords[3][1] = 0;
+      switch(rot){
+        case 0:
+          fallingBlockCoords[0][0] = -1;
+          fallingBlockCoords[0][1] = 0;
+          fallingBlockCoords[1][0] = 0;
+          fallingBlockCoords[1][1] = 0;
+          fallingBlockCoords[2][0] = 0;
+          fallingBlockCoords[2][1] = -1;
+          fallingBlockCoords[3][0] = 1;
+          fallingBlockCoords[3][1] = 0;
+          break;
+        case 1:
+          fallingBlockCoords[0][0] = 0;
+          fallingBlockCoords[0][1] = -1;
+          fallingBlockCoords[1][0] = 0;
+          fallingBlockCoords[1][1] = 0;
+          fallingBlockCoords[2][0] = 0;
+          fallingBlockCoords[2][1] = 1;
+          fallingBlockCoords[3][0] = 1;
+          fallingBlockCoords[3][1] = 0;
+          break;
+        case 2:
+          fallingBlockCoords[0][0] = -1;
+          fallingBlockCoords[0][1] = 0;
+          fallingBlockCoords[1][0] = 0;
+          fallingBlockCoords[1][1] = 0;
+          fallingBlockCoords[2][0] = 0;
+          fallingBlockCoords[2][1] = 1;
+          fallingBlockCoords[3][0] = 1;
+          fallingBlockCoords[3][1] = 0;
+          break;
+        case 3:
+          fallingBlockCoords[0][0] = 0;
+          fallingBlockCoords[0][1] = -1;
+          fallingBlockCoords[1][0] = 0;
+          fallingBlockCoords[1][1] = 0;
+          fallingBlockCoords[2][0] = 0;
+          fallingBlockCoords[2][1] = 1;
+          fallingBlockCoords[3][0] = -1;
+          fallingBlockCoords[3][1] = 0;
+          break;
+      }
       break;
   }
 }
