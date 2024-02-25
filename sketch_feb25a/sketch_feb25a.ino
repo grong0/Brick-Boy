@@ -1,7 +1,14 @@
 #include <SPI.h>
 #include <TFT_eSPI.h>  // Hardware-specific library
 
-TFT_eSPI tft = TFT_eSPI();	// Invoke custom library
+#define FileSys LittleFS
+
+#include <PNGdec.h>
+
+PNG png;
+#define MAX_IMAGE_WIDTH 240;
+
+TFT_eSPI tft = TFT_eSPI();  // Invoke custom library
 
 // #define GRIDX 80
 // #define GRIDY 60
@@ -24,10 +31,10 @@ uint8_t newgrid[GRIDX][GRIDY];
 
 uint16_t genCount = 0;
 enum State {
-	MainMenu,
-	TetMenu,
-	TetGame,
-	TetGameOver
+  MainMenu,
+  TetMenu,
+  TetGame,
+  TetGameOver
 };
 
 int level = 0;
@@ -41,38 +48,60 @@ State state;
 
 bool buttons[6];
 
-void setup() {
-	tft.init();
-	tft.setRotation(0);
-	tft.fillScreen(TFT_BLACK);
-	state = MainMenu;
+void createLogo() {
+  tft.fillScreen(TFT_BLACK);
+  tft.drawRect(int32_t x, int32_t y, int32_t w, int32_t h, uint32_t color);
+}
 
-	for (int i = 2; i < 8; i++) {
-		pinMode(i, INPUT_PULLDOWN);
-		buttons[i - 2] = false;
-	}
+void createX(int16_t x, int16_t y, ) {
+  tft.fillRectHGradient(int16_t x, int16_t y, int16_t w, int16_t h, uint32_t color1, uint32_t color2);
+  tft.fillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, uint32_t color);
+  tft.fillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, uint32_t color);
+  tft.fillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, uint32_t color);
+  tft.fillTriangle(int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3, int32_t y3, uint32_t color);
+}
+
+void setup() {
+  if (!FileSys.begin()) {
+    Serial.println("LittleFS initialization failed!");
+    while (1) yield();  // Stay here waiting
+  }
+
+  tft.init();
+  tft.setRotation(0);
+  tft.fillScreen(TFT_BLACK);
+  state = MainMenu;
+
+  for (int i = 2; i < 8; i++) {
+    pinMode(i, INPUT_PULLDOWN);
+    buttons[i - 2] = false;
+  }
+
+  Serial.println("\r\nInitialisation done.");
 }
 
 void loop() {
-  for(int i = 2; i < 8; i++){
+  File root = LittleFS.open("/", "r");
+
+  for (int i = 2; i < 8; i++) {
     buttons[i - 2] = digitalRead(i) == HIGH;
   }
 
-  switch(state){
+  switch (state) {
     case 0:
 
       break;
     case 1:
-      //Update
-      if(buttons[0]) state = TetGame;
-      //Draw
+      // Update
+      if (buttons[0]) state = TetGame;
+      // Draw
       tft.setTextSize(2);
       tft.setTextColor(TFT_WHITE);
       tft.setCursor(40, 5);
       tft.println(F("Arduino"));
       break;
     case 2:
-      //Upd
+      // Upd
       break;
     case 3:
       break;
@@ -80,6 +109,6 @@ void loop() {
 }
 
 void startTetris() {
-	level = 0;
-	score = 0;
+  level = 0;
+  score = 0;
 }
