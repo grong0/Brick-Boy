@@ -39,7 +39,7 @@ int curBlock[0][0];
 
 
 
-State state;
+enum State state;
 
 bool buttons[6];
 
@@ -47,7 +47,7 @@ void setup(){
   tft.init();
   tft.setRotation(0);
   tft.fillScreen(TFT_BLACK);
-  state = Menu;
+  state = TetMenu;
 
   for(int i = 2; i < 8; i++){
     pinMode(i, INPUT_PULLDOWN);
@@ -57,23 +57,26 @@ void setup(){
 
 void loop() {
   for(int i = 2; i < 8; i++){
-    digitalRead(i)
+    buttons[i - 2] = digitalRead(i) == HIGH;
   }
 
-
-
-
   switch(state){
-    case State.MainMenu:
+    case 0:
 
       break;
-    case State.TetMenu:
-
+    case 1:
+      //Update
+      if(buttons[0]) state = TetGame;
+      //Draw
+      tft.setTextSize(2);
+      tft.setTextColor(TFT_WHITE);
+      tft.setCursor(40, 5);
+      tft.println(F("Arduino"));
       break;
-    case State.TetGame:
-
+    case 2:
+      //Upd
       break;
-    case State.TetGameOver:
+    case 3:
       break;
   }
 }
