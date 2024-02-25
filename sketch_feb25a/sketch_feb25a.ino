@@ -54,23 +54,29 @@ void setup() {
 }
 
 void loop() {
-	for (int i = 2; i < 8; i++) {
-		digitalRead(i);
-	}
+  for(int i = 2; i < 8; i++){
+    buttons[i - 2] = digitalRead(i) == HIGH;
+  }
 
-	switch (state) {
-		case MainMenu:
-			break;
+  switch(state){
+    case 0:
 
-		case TetMenu:
-			break;
-
-		case TetGame:
-			break;
-
-		case TetGameOver:
-			break;
-	}
+      break;
+    case 1:
+      //Update
+      if(buttons[0]) state = TetGame;
+      //Draw
+      tft.setTextSize(2);
+      tft.setTextColor(TFT_WHITE);
+      tft.setCursor(40, 5);
+      tft.println(F("Arduino"));
+      break;
+    case 2:
+      //Upd
+      break;
+    case 3:
+      break;
+  }
 }
 
 void startTetris() {
