@@ -129,7 +129,7 @@ bool tryMoveSide(bool right){
   }
 
   for(int i = 0; i < 4; i++){
-    if((pos[1] + fallingBlockCoords[i][0] + dir) >= 10 || (pos[1] + fallingBlockCoords[i][0] + dir) < 0 || blocks[pos[0] + fallingBlockCoords[i][1] + 1][pos[1] + fallingBlockCoords[i][0] + dir] != 0){
+    if((pos[1] + fallingBlockCoords[i][0] + dir) >= 10 || (pos[1] + fallingBlockCoords[i][0] + dir) < 0 || blocks[pos[0] + fallingBlockCoords[i][1]][pos[1] + fallingBlockCoords[i][0] + dir] != 0){
       return false;
     }
   }
@@ -139,7 +139,15 @@ bool tryMoveSide(bool right){
 }
 
 bool tryRotate(){
-  
+  calcBlockCoords(fallingBlock, rot + 1);
+  for(int i = 0; i < 4; i++){
+    if((pos[1] + fallingBlockCoords[i][0) >= 10 || (pos[0] + fallingBlockCoords[i][1]) > 20 || (pos[1] + fallingBlockCoords[i][0]) < 0 || blocks[pos[0] + fallingBlockCoords[i][1]][pos[1] + fallingBlockCoords[i][0]] != 0){
+      calcBlockCoords(fallingBlock, rot);
+      return false;
+    }
+  }
+  rot++;
+  return true;
 }
 
 void goToTetMenu() {
