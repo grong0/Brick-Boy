@@ -1,8 +1,14 @@
 #include <SPI.h>
 #include <TFT_eSPI.h>  // Hardware-specific library
 
-TFT_eSPI tft = TFT_eSPI();  // Invoke custom library
+#include <LittleFileSystem.h>
+#define FileSys LittleFileSystem
+#include <PNGdec.h>
+#define MAX_IMAGE_WIDTH 240
 
+TFT_eSPI tft = TFT_eSPI();  // Invoke custom library
+PNG bhxLogoPng;
+PNG rickyPng;
 
 enum State {
   MainMenu,
@@ -11,7 +17,87 @@ enum State {
   TetGameOver
 };
 
-uint16_t colors[] = {TFT_DARKGREY, TFT_CYAN, TFT_BLUE, TFT_ORANGE, TFT_GREEN, TFT_RED, TFT_YELLOW, TFT_MAGENTA};
+void * pngOpen(const char *filename, int32_t *size) {
+  Serial.printf("Attempting to open %s\n", filename);
+  pngfile = FileSys.open(filename, "r");
+  *size = pngfile.size();
+  return &pngfile;
+}
+
+void pngClose(void *handle) {
+  File pngfile = *((File*)handle);
+  if (pngfile) pngfile.close();
+}
+
+int32_t pngRead(PNGFILE *page, uint8_t *buffer, int32_t length) {
+  if (!pngfile) return 0;
+  page = page; // Avoid warning
+  return pngfile.read(buffer, length);
+}
+
+int32_t pngSeek(PNGFILE *page, int32_t position) {
+  if (!pngfile) return 0;
+  page = page; // Avoid warning
+  return pngfile.seek(position);
+}
+
+#define BHXLOGO_X 0
+#define BHXLOGO_Y 0
+#define RICKY_X 0
+#define RICKY_Y 0
+
+void bhxLogoDraw(PNGDRAW *pDraw) {
+  uint16_t lineBuffer[MAX_IMAGE_WIDTH];
+  bhxLogoPng.getLineAsRGB565(pDraw, lineBuffer, PNG_RGB565_BIG_ENDIAN, 0xffffffff);
+  tft.pushImage(BHXLOGO_X, BHXLOGO_Y + pDraw->y, pDraw->iWidth, 1, lineBuffer);
+}
+
+void rickyDraw(PNGDRAW *pDraw) {
+  uint16_t lineBuffer[MAX_IMAGE_WIDTH];
+  rickyPng.getLineAsRGB565(pDraw, lineBuffer, PNG_RGB565_BIG_ENDIAN, 0xffffffff);
+  tft.pushImage(RICKY_X, RICKY_Y + pDraw->y, pDraw->iWidth, 1, lineBuffer);
+}
+
+void goToMainMenu() {
+  File bhxLogo = LittleFS.open("/bhxlogo.png");
+  File ricky = LittleFS.open("/ricky.png");
+
+  int16_t bhxLogoRC = bhxLogoPng.open(file.name().c_str(), pngOpen, pngClose, pngRead, pngSeek, bhxLogoDraw);
+  int16_t rickyRC = rickyPng.open(file.name().c_str(), pngOpen, pngClose, pngRead, pngSeek, rickyDraw);
+
+  tft.fillScreen(TFT_BLACK);
+
+  delay(1000);
+
+  if (bhxLogoRC == PNG_SUCCESS && rickyRC == PNG_SUCCESS) {
+    tft.startWrite();
+
+    if (bhxLogoPng.getWidth() > MAX_IMAGE_WIDTH) {
+      Serial.println("bhx was too big");
+    } else {
+      bhxLogoRC = bhxLogoPng.decode(NULL, 0);
+      bhxLogoPng.close();
+    }
+    if (rickyPng.getWidth() > MAX_IMAGE_WIDTH) {
+      Serial.println("ricky was too big");
+    } else {
+      rickyRC = rickyPng.decode(NULL, 0);
+      rickyPng.close();
+    }
+
+    tft.endWrite();
+  }
+
+  delay(5000);
+
+  tft.fillScreen(TFT_BLACK);
+
+  delay(1000);
+
+  goToTetMenu();
+}
+
+uint16_t colors[] = {TFT_DARKGREY, TFT_RED, TFT_ORANGE, TFT_YELLOW, TFT_GREEN, TFT_BLUE, TFT_CYAN, TFT_MAGENTA};
 
 int level = 0;
 int score = 0;
@@ -31,21 +117,26 @@ void setup() {
   tft.init();
   tft.setRotation(0);
   tft.fillScreen(TFT_DARKGREY);
-  state = TetMenu;
+  state = MainMenu;
 
+  if (!FileSys.begin()) {
+    Serial.println("LittleFS initialisation failed!");
+    while (1) yield();
+  }
 
   for (int i = 2; i < 8; i++) {
     pinMode(i, INPUT_PULLDOWN);
     buttons[i - 2] = false;
   }
 
-  goToTetMenu();
+  goToMainMenu();
 }
 
 int f = 0;
 
 void loop() {
   f++;
+
   for(int i = 2; i < 8; i++){
     buttons[i - 2] = digitalRead(i) == HIGH;
   }
@@ -80,11 +171,11 @@ void loop() {
         }
       }
 
-      
+
       if(buttons[3] || buttons[5]){
         tryMoveSide(buttons[3]);
       }
-      
+
       if(buttons[0]){
         tryRotate();
       }
@@ -175,10 +266,6 @@ void goToTetGame() {
       tft.fillRect(80 + c * 16, 80 + r * 16, 16, 16, colors[rand()%8]);
     }
   }
-<<<<<<< Updated upstream
-
-=======
->>>>>>> Stashed changes
 }
 
 void calcBlockCoords(int block, int rot){// 0, 1 = I, 2 = L, 3 = J, 4 = Z, 5 = S, 6 = o, 7 = T
